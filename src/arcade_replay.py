@@ -175,7 +175,7 @@ class F1ReplayWindow(arcade.Window):
             "VSC": (180, 100,  30),      # virtual safety car / amber-brown
             "SC": (220, 180,   0),       # safety car (treat like yellow)
         }
-        track_color = STATUS_COLORS.get("GREEN")
+        track_color = STATUS_COLORS.get("GREEN", (150, 150, 150))
 
         if current_track_status == "2":
             track_color = STATUS_COLORS.get("YELLOW")
@@ -224,6 +224,26 @@ class F1ReplayWindow(arcade.Window):
         arcade.Text(f"Race Time: {time_str}", 
                          20, self.height - 80, 
                          arcade.color.WHITE, 20, anchor_y="top").draw()
+
+        # Track Status (shown below race time, updates live)
+        status_label = "Green"
+        if current_track_status == "2":
+            status_label = "Yellow Flag"
+        elif current_track_status == "4":
+            status_label = "Safety Car"
+        elif current_track_status == "5":
+            status_label = "Red Flag"
+        elif current_track_status == "6" or current_track_status == "7":
+            status_label = "Virtual Safety Car"
+
+        arcade.Text(
+            f"Track: {status_label}",
+            20,
+            self.height - 120,
+            track_color,
+            20,
+            anchor_y="top",
+        ).draw()
 
         # Draw Leaderboard - Top Right
         leaderboard_x = self.width - 220
@@ -311,6 +331,7 @@ class F1ReplayWindow(arcade.Window):
             "[SPACE]  Pause/Resume",
             "[←/→]    Rewind / FastForward",
             "[↑/↓]    Speed +/- (0.5x, 1x, 2x, 4x)",
+            "[R]       Restart",
         ]
         
         for i, line in enumerate(legend_lines):
@@ -425,6 +446,9 @@ class F1ReplayWindow(arcade.Window):
             self.playback_speed = 2.0
         elif symbol == arcade.key.KEY_4:
             self.playback_speed = 4.0
+        elif symbol == arcade.key.R:
+            self.frame_index = 0.0
+            self.playback_speed = 1.0
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         # Default: clear selection
